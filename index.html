@@ -241,7 +241,43 @@ margin-bottom:14px;
 .wolf-row-label { font-size:12px; color:#888899; margin-bottom:4px; }
 .wolf-row-names { font-size:16px; font-weight:700; color:#e74c3c; }
 
-@-webkit-keyframes fadeDown { from{opacity:0;-webkit-transform:translateY(-20px);transform:translateY(-20px)}to{opacity:1;-webkit-transform:translateY(0);transform:translateY(0)} }
+/* 中止ボタン */
+.btn-abort {
+background:transparent; color:#555566; border:1px solid #333344;
+border-radius:12px; padding:8px 16px; font-size:13px; font-family:inherit;
+cursor:pointer; -webkit-appearance:none; appearance:none;
+-webkit-transition:all .2s; transition:all .2s; display:inline-block;
+}
+.btn-abort:active { background:rgba(231,76,60,.15); color:#e74c3c; border-color:rgba(231,76,60,.4); }
+
+/* 中止確認オーバーレイ */
+.abort-overlay {
+position:fixed; top:0;left:0;right:0;bottom:0;
+background:rgba(0,0,0,.75); z-index:300;
+display:-webkit-box; display:-ms-flexbox; display:flex;
+-webkit-box-align:center; -ms-flex-align:center; align-items:center;
+-webkit-box-pack:center; -ms-flex-pack:center; justify-content:center;
+padding:24px;
+}
+.abort-overlay.hidden { display:none; }
+.abort-dialog {
+background:#1e1e2e; border:1px solid #2a2a3e; border-radius:24px;
+padding:28px 24px; width:100%; max-width:320px; text-align:center;
+}
+.abort-dialog-title { font-size:20px; font-weight:900; color:#f0f0f5; margin-bottom:8px; }
+.abort-dialog-sub   { font-size:14px; color:#888899; margin-bottom:24px; line-height:1.6; }
+.abort-dialog-btns  { display:-webkit-box; display:-ms-flexbox; display:flex; }
+.abort-dialog-btns > * { -webkit-box-flex:1; -ms-flex:1; flex:1; }
+.abort-dialog-btns > *:first-child { margin-right:10px; }
+
+/* 画面タイトル行（中止ボタン付き） */
+.screen-title-row {
+display:-webkit-box; display:-ms-flexbox; display:flex;
+-webkit-box-align:center; -ms-flex-align:center; align-items:center;
+-webkit-box-pack:justify; -ms-flex-pack:justify; justify-content:space-between;
+width:100%;
+}
+.screen-title-row .screen-title { -webkit-box-flex:1; -ms-flex:1; flex:1; }
 @keyframes fadeDown         { from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)} }
 @-webkit-keyframes pulse    { 0%,100%{-webkit-transform:scale(1);transform:scale(1)}50%{-webkit-transform:scale(1.06);transform:scale(1.06)} }
 @keyframes pulse            { 0%,100%{transform:scale(1)}50%{transform:scale(1.06)} }
@@ -343,14 +379,31 @@ margin-bottom:14px;
 
 </div>
 
+<!-- 中止確認オーバーレイ -->
+
+<div id="abort-overlay" class="abort-overlay hidden">
+  <div class="abort-dialog">
+    <div class="abort-dialog-title">⏹ ゲームを中止</div>
+    <div class="abort-dialog-sub">中止するとゲームの進行が<br>リセットされます。よろしいですか？</div>
+    <div class="abort-dialog-btns">
+      <button class="btn-secondary" onclick="closeAbort()">キャンセル</button>
+      <button class="btn-wolf" onclick="doAbort()">中止する</button>
+    </div>
+  </div>
+</div>
+
 <!-- DEAL -->
 
 <div id="deal-screen" class="screen">
-  <div class="screen-title">📋 お題配布</div>
+  <div class="screen-title-row">
+    <div class="screen-title">📋 お題配布</div>
+    <button class="btn-abort" onclick="openAbort()">⏹ 中止</button>
+  </div>
   <div class="deal-instruction">順番にタップして自分のお題を確認してください。<br>他の人に見せないように！</div>
   <div class="progress-dots" id="progress-dots"></div>
   <div class="wolf-count-badge" id="wolf-count-badge"></div>
   <div class="reversal-info-badge" id="reversal-info-badge" style="display:none;">🌀 大逆転モード ON — 追放後にウルフの逆転チャンスあり！</div>
+  <button class="btn-secondary" onclick="redealGame()" style="font-size:14px;padding:10px;">🔀 このお題やったことある（再抽選）</button>
   <div id="deal-cards"></div>
 </div>
 
@@ -368,7 +421,10 @@ margin-bottom:14px;
 <!-- DISCUSSION -->
 
 <div id="discussion-screen" class="screen">
-  <div class="screen-title">💬 話し合い</div>
+  <div class="screen-title-row">
+    <div class="screen-title">💬 話し合い</div>
+    <button class="btn-abort" onclick="openAbort()">⏹ 中止</button>
+  </div>
   <div class="timer-circle">
     <svg class="timer-svg" viewBox="0 0 160 160">
       <circle class="timer-bg"  cx="80" cy="80" r="70"/>
@@ -390,7 +446,10 @@ margin-bottom:14px;
 <!-- VOTE -->
 
 <div id="vote-screen" class="screen">
-  <div class="screen-title">🗳️ 投票</div>
+  <div class="screen-title-row">
+    <div class="screen-title">🗳️ 投票</div>
+    <button class="btn-abort" onclick="openAbort()">⏹ 中止</button>
+  </div>
   <div class="vote-instruction">ウルフだと思う人をタップ！（複数可）</div>
   <div class="vote-list" id="vote-list"></div>
   <button class="btn-primary" id="result-btn" onclick="processVoteResult()" disabled>結果へ進む →</button>
@@ -400,6 +459,10 @@ margin-bottom:14px;
 <!-- REVERSAL -->
 
 <div id="reversal-screen" class="screen">
+  <div class="screen-title-row" style="margin-bottom:0;">
+    <div style="-webkit-box-flex:1;-ms-flex:1;flex:1;"></div>
+    <button class="btn-abort" onclick="openAbort()">⏹ 中止</button>
+  </div>
   <div class="reversal-banner shake-in">
     <div style="font-size:48px;">🌀</div>
     <div class="reversal-big-title">大逆転チャンス！</div>
@@ -955,6 +1018,49 @@ function showResult(reversalWin){
   showScreen('result-screen');
 }
 function playAgain(){showSetup();}
+
+/* ════════════════════════
+   中止
+════════════════════════ */
+function openAbort(){
+  document.getElementById('abort-overlay').classList.remove('hidden');
+}
+function closeAbort(){
+  document.getElementById('abort-overlay').classList.add('hidden');
+}
+function doAbort(){
+  clearInterval(S.timerHandle);
+  document.getElementById('abort-overlay').classList.add('hidden');
+  document.getElementById('word-overlay').classList.add('hidden');
+  showScreen('title-screen');
+}
+
+/* ════════════════════════
+   再抽選（やったことある）
+   同じお題が連続しないよう除外して選ぶ
+════════════════════════ */
+function redealGame(){
+  var pairs=S.wordPairs.length>0?S.wordPairs:BUILTIN_PAIRS;
+  /* 現在のお題ペアを除いた候補を作る */
+  var candidates=[];
+  for(var i=0;i<pairs.length;i++){
+    var p=pairs[i];
+    if(p[0]!==S.citizenWord&&p[1]!==S.citizenWord&&
+       p[0]!==S.wolfWord  &&p[1]!==S.wolfWord){
+      candidates.push(p);
+    }
+  }
+  /* 候補がなければ全体から選ぶ（お題が1ペアしかない場合）*/
+  if(candidates.length===0) candidates=pairs;
+
+  var pair=candidates[Math.floor(Math.random()*candidates.length)];
+  if(Math.random()<0.5){S.citizenWord=pair[0];S.wolfWord=pair[1];}
+  else{S.citizenWord=pair[1];S.wolfWord=pair[0];}
+
+  /* 役割はそのまま、配布を最初からやり直す */
+  S.dealIdx=0;
+  setupDealScreen();
+}
 
 /* ════════════════════════
    INIT — トグルの見た目をStateに同期
