@@ -246,6 +246,25 @@ margin-bottom:14px;
 .wolf-row-label { font-size:12px; color:#888899; margin-bottom:4px; }
 .wolf-row-names { font-size:16px; font-weight:700; color:#e74c3c; }
 
+/* プレイヤー別お題一覧 */
+.player-result-list { display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-orient:vertical; -ms-flex-direction:column; flex-direction:column; }
+.player-result-list > .player-result-row { margin-bottom:8px; }
+.player-result-list > .player-result-row:last-child { margin-bottom:0; }
+.player-result-row { display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-align:center; -ms-flex-align:center; align-items:center; border-radius:14px; padding:12px 14px; border:2px solid transparent; }
+.player-result-row.is-wolf    { background:rgba(231,76,60,.1);  border-color:rgba(231,76,60,.35); }
+.player-result-row.is-citizen { background:rgba(46,204,113,.07); border-color:rgba(46,204,113,.2); }
+.pr-icon { font-size:22px; -ms-flex-negative:0; flex-shrink:0; margin-right:10px; }
+.pr-info { -webkit-box-flex:1; -ms-flex:1; flex:1; min-width:0; }
+.pr-name { font-size:16px; font-weight:700; color:#f0f0f5; }
+.pr-word { font-size:14px; margin-top:2px; }
+.pr-word.citizen-word { color:#2ecc71; }
+.pr-word.wolf-word    { color:#e74c3c; }
+.pr-badges { display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-orient:vertical; -webkit-box-direction:normal; -ms-flex-direction:column; flex-direction:column; -webkit-box-align:end; -ms-flex-align:end; align-items:flex-end; -ms-flex-negative:0; flex-shrink:0; margin-left:8px; }
+.pr-tag { font-size:11px; font-weight:700; padding:2px 8px; border-radius:6px; margin-bottom:3px; white-space:nowrap; }
+.pr-tag:last-child { margin-bottom:0; }
+.tag-wolf   { background:rgba(231,76,60,.25);  color:#e74c3c; }
+.tag-voted  { background:rgba(241,196,15,.2);  color:#f1c40f; }
+
 /* 中止ボタン */
 .btn-abort {
 background:transparent; color:#555566; border:1px solid #333344;
@@ -498,19 +517,27 @@ width:100%;
   <div class="result-emoji" id="result-emoji"></div>
   <div class="result-title" id="result-title"></div>
   <div class="result-desc"  id="result-desc"></div>
+
+  <!-- お題答え合わせ -->
+
   <div class="result-card">
     <div class="result-card-label">お題の答え</div>
     <div class="result-word-row">
       <div class="word-box cbox"><div class="box-label">市民のお題</div><div class="box-word" id="r-citizen"></div></div>
       <div class="word-box wbox"><div class="box-label">ウルフのお題</div><div class="box-word" id="r-wolf-word"></div></div>
     </div>
-    <div class="wolf-row">
-      <div class="wolf-row-label">🐺 ウルフは...</div>
-      <div class="wolf-row-names" id="r-wolf-names"></div>
-    </div>
   </div>
-  <button class="btn-primary" onclick="playAgain()">🔄 もう一度遊ぶ</button>
-  <button class="btn-secondary" onclick="showScreen('title-screen')">🏠 タイトルへ</button>
+
+  <!-- プレイヤー別一覧 -->
+
+  <div class="result-card">
+    <div class="result-card-label">みんなのお題</div>
+    <div class="player-result-list" id="player-result-list"></div>
+  </div>
+
+<button class="btn-primary" onclick="playAgain()">🔄 もう一度遊ぶ</button>
+<button class="btn-secondary" onclick="showScreen('title-screen')">🏠 タイトルへ</button>
+
 </div>
 
 </div>
@@ -1026,9 +1053,40 @@ function showResult(reversalWin){
     title.className='result-title wolf-wins';
     desc.textContent='ウルフは生き残りました！\nうまく市民に紛れ込んでいました。';
   }
+
   document.getElementById('r-citizen').textContent=S.citizenWord;
   document.getElementById('r-wolf-word').textContent=S.wolfWord;
-  document.getElementById('r-wolf-names').textContent=wolves.join('、');
+
+  /* プレイヤー別お題一覧 */
+  var listEl=document.getElementById('player-result-list');
+  var html='';
+  for(var j=0;j<S.playerNames.length;j++){
+    var name=S.playerNames[j];
+    var isWolf=(S.roles[j]==='wolf');
+    var word=isWolf?S.wolfWord:S.citizenWord;
+    var wasVoted=(S.mostVoted.indexOf(name)>=0);
+
+    var rowClass='player-result-row '+(isWolf?'is-wolf':'is-citizen');
+    var icon=isWolf?'🐺':'😊';
+    var wordClass=isWolf?'wolf-word':'citizen-word';
+
+    /* バッジ */
+    var badges='';
+    if(isWolf) badges+='<div class="pr-tag tag-wolf">ウルフ</div>';
+    if(wasVoted) badges+='<div class="pr-tag tag-voted">追放票あり</div>';
+
+    html+=
+      '<div class="'+rowClass+'">'+
+        '<div class="pr-icon">'+icon+'</div>'+
+        '<div class="pr-info">'+
+          '<div class="pr-name">'+esc(name)+'</div>'+
+          '<div class="pr-word '+wordClass+'">'+esc(word)+'</div>'+
+        '</div>'+
+        (badges?'<div class="pr-badges">'+badges+'</div>':'')+
+      '</div>';
+  }
+  listEl.innerHTML=html;
+
   showScreen('result-screen');
 }
 function playAgain(){showSetup();}
