@@ -4,6 +4,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ワードウルフ">
+<!-- ホーム画面アイコン（オオカミ絵文字をSVGでアイコン化） -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='120' fill='%230e0e14'/%3E%3Ctext x='50%25' y='58%25' font-size='320' text-anchor='middle' dominant-baseline='middle'%3E🐺%3C/text%3E%3C/svg%3E">
 <title>ワードウルフ</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap');
@@ -410,6 +415,11 @@ width:100%;
 <!-- WORD OVERLAY -->
 
 <div id="word-overlay" class="overlay hidden">
+  <!-- オーバーレイ内の上部ボタン行 -->
+  <div style="display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;width:100%;max-width:340px;">
+    <button class="btn-abort" onclick="redealFromOverlay()">🔀 再抽選</button>
+    <button class="btn-abort" onclick="abortFromOverlay()">⏹ 中止</button>
+  </div>
   <div class="overlay-player">あなたのお題</div>
   <div class="overlay-name" id="overlay-name"></div>
   <div class="overlay-word" id="overlay-word"></div>
@@ -895,8 +905,10 @@ function startDiscussion(){
   document.getElementById('timer-text').style.color='#f1c40f';
   updateTimerDisplay();
   showScreen('discussion-screen');
-  if(S.timerSecs>0){ startTimerTick(); }
-  else{
+  if(S.timerSecs>0){
+    requestWakeLock(); /* スリープ防止 開始 */
+    startTimerTick();
+  } else {
     document.getElementById('timer-text').textContent='∞';
     document.getElementById('timer-arc').style.strokeDashoffset='440';
     document.getElementById('pause-btn').style.display='none';
@@ -909,6 +921,8 @@ function startTimerTick(){
     S.remaining--; updateTimerDisplay();
     if(S.remaining<=0){
       clearInterval(S.timerHandle);
+      S.timerHandle=null;
+      releaseWakeLock(); /* スリープ防止 解放 */
       document.getElementById('timer-text').textContent='⏰';
       document.getElementById('timer-arc').style.stroke='#e74c3c';
       document.getElementById('timer-text').style.color='#e74c3c';
@@ -1030,9 +1044,22 @@ function closeAbort(){
 }
 function doAbort(){
   clearInterval(S.timerHandle);
+  releaseWakeLock();
   document.getElementById('abort-overlay').classList.add('hidden');
   document.getElementById('word-overlay').classList.add('hidden');
   showScreen('title-screen');
+}
+
+/* オーバーレイ内の中止ボタン（確認ダイアログを経由） */
+function abortFromOverlay(){
+  document.getElementById('word-overlay').classList.add('hidden');
+  openAbort();
+}
+
+/* オーバーレイ内の再抽選ボタン */
+function redealFromOverlay(){
+  document.getElementById('word-overlay').classList.add('hidden');
+  redealGame();
 }
 
 /* ════════════════════════
@@ -1041,7 +1068,6 @@ function doAbort(){
 ════════════════════════ */
 function redealGame(){
   var pairs=S.wordPairs.length>0?S.wordPairs:BUILTIN_PAIRS;
-  /* 現在のお題ペアを除いた候補を作る */
   var candidates=[];
   for(var i=0;i<pairs.length;i++){
     var p=pairs[i];
@@ -1050,22 +1076,48 @@ function redealGame(){
       candidates.push(p);
     }
   }
-  /* 候補がなければ全体から選ぶ（お題が1ペアしかない場合）*/
   if(candidates.length===0) candidates=pairs;
-
   var pair=candidates[Math.floor(Math.random()*candidates.length)];
   if(Math.random()<0.5){S.citizenWord=pair[0];S.wolfWord=pair[1];}
   else{S.citizenWord=pair[1];S.wolfWord=pair[0];}
-
-  /* 役割はそのまま、配布を最初からやり直す */
   S.dealIdx=0;
   setupDealScreen();
 }
 
 /* ════════════════════════
+   Wake Lock（スリープ防止）
+   タイマー開始時に取得、終了・中止時に解放
+════════════════════════ */
+var wakeLock=null;
+
+function requestWakeLock(){
+  if(!('wakeLock' in navigator)) return;
+  navigator.wakeLock.request('screen').then(function(lock){
+    wakeLock=lock;
+    lock.addEventListener('release',function(){ wakeLock=null; });
+  }).catch(function(){});
+}
+
+function releaseWakeLock(){
+  if(wakeLock){ wakeLock.release().catch(function(){}); wakeLock=null; }
+}
+
+/* ページが再表示されたとき（バックグラウンドから復帰）に再取得 */
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='visible'&&S.timerHandle&&!S.paused){
+    requestWakeLock();
+  }
+});
+
+/* ════════════════════════
    INIT — トグルの見た目をStateに同期
 ════════════════════════ */
 (function init(){
+  /* 画面回転ロック（縦固定） */
+  if(screen.orientation&&screen.orientation.lock){
+    screen.orientation.lock('portrait').catch(function(){});
+  }
+
   document.getElementById('sw-reversal').classList.toggle('on',S.reversalEnabled);
   document.getElementById('toggle-reversal').classList.toggle('on',S.reversalEnabled);
   document.getElementById('sw-hint').classList.toggle('on',S.hintEnabled);
