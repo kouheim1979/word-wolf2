@@ -587,36 +587,82 @@ var S={
 };
 
 /* ════════════════════════
-   JSON読み込み（words.json があれば上書き）
-   ただしlocalStorageに保存済みのペアがあればそちら優先
+   JSON読み込み
+   words.json と words_family.json を両方読み込んで合算
+   localStorageに保存済みでも毎回読み直して最新を反映
 ════════════════════════ */
+var JSON_FILES = ['words.json', 'words_family.json'];
+var jsonLoaded = {};   /* ファイル名 → ペア配列 */
+var jsonPending = 0;   /* 読み込み待ちカウント */
+
 function tryLoadJSON(){
-  /* LS_PAIRSに保存済みの場合はJSONを読まない */
-  if(localStorage.getItem(LS_PAIRS)!==null) return;
-  var xhr=new XMLHttpRequest();
-  xhr.open('GET','words.json',true);
-  xhr.onreadystatechange=function(){
-    if(xhr.readyState!==4) return;
-    if((xhr.status===200||xhr.status===0)&&xhr.responseText){
+  jsonLoaded = {};
+  jsonPending = JSON_FILES.length;
+  for(var i=0;i<JSON_FILES.length;i++){
+    loadOneJSON(JSON_FILES[i]);
+  }
+}
+
+function loadOneJSON(filename){
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', filename, true);
+  xhr.onreadystatechange = function(){
+    if(xhr.readyState !== 4) return;
+    if((xhr.status===200||xhr.status===0) && xhr.responseText){
       try{
-        var data=JSON.parse(xhr.responseText);
-        var pairs=[];
+        var data = JSON.parse(xhr.responseText);
+        var pairs = [];
         if(data.categories){
           for(var i=0;i<data.categories.length;i++){
-            var cat=data.categories[i];
+            var cat = data.categories[i];
             if(cat.pairs) for(var j=0;j<cat.pairs.length;j++) pairs.push(cat.pairs[j]);
           }
         }
-        if(pairs.length>0){
-          S.wordPairs=pairs;
-          lsSet(LS_PAIRS,pairs);
-          renderWordStats();
-          renderWordList();
-        }
+        if(pairs.length > 0) jsonLoaded[filename] = pairs;
       }catch(e){}
     }
+    jsonPending--;
+    if(jsonPending <= 0) mergeLoadedJSON();
   };
-  try{ xhr.send(); }catch(e){}
+  xhr.onerror = function(){ jsonPending--; if(jsonPending<=0) mergeLoadedJSON(); };
+  try{ xhr.send(); }catch(e){ jsonPending--; if(jsonPending<=0) mergeLoadedJSON(); }
+}
+
+function mergeLoadedJSON(){
+  /* localStorageに保存済みのペアがあればそちらベース（編集済み）
+     + 各JSONファイルから localStorageにないペアを追記 */
+  var lsPairs = lsGet(LS_PAIRS, null);
+
+  /* まず全JSONのペアをフラットに集める */
+  var allFromJSON = [];
+  for(var i=0;i<JSON_FILES.length;i++){
+    var fp = jsonLoaded[JSON_FILES[i]];
+    if(fp) for(var j=0;j<fp.length;j++) allFromJSON.push(fp[j]);
+  }
+
+  if(lsPairs !== null){
+    /* localStorageがある → 編集済みを優先しつつ
+       JSONにしかないペアを末尾に追加（重複チェック） */
+    var base = lsPairs.slice();
+    for(var k=0;k<allFromJSON.length;k++){
+      var p = allFromJSON[k];
+      var found = false;
+      for(var m=0;m<base.length;m++){
+        if(base[m][0]===p[0] && base[m][1]===p[1]){ found=true; break; }
+      }
+      if(!found) base.push(p);
+    }
+    S.wordPairs = base;
+    lsSet(LS_PAIRS, base);
+  } else {
+    /* 初回：JSONから全部読む */
+    if(allFromJSON.length > 0){
+      S.wordPairs = allFromJSON;
+      lsSet(LS_PAIRS, allFromJSON);
+    }
+  }
+  renderWordStats();
+  renderWordList();
 }
 
 /* ════════════════════════
