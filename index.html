@@ -544,20 +544,9 @@ width:100%;
 
 <script>
 /* ════════════════════════
-   内蔵バックアップお題
+   内蔵バックアップお題（なし）
 ════════════════════════ */
-var BUILTIN_PAIRS=[
-  ["ラーメン","うどん"],["すし","刺身"],["カレー","シチュー"],
-  ["コーヒー","紅茶"],["バーガー","ホットドッグ"],["ピザ","グラタン"],
-  ["アイスクリーム","シャーベット"],["ケーキ","プリン"],["チョコレート","キャラメル"],
-  ["おにぎり","サンドイッチ"],["焼肉","しゃぶしゃぶ"],["たこやき","お好み焼き"],
-  ["犬","猫"],["ライオン","トラ"],["パンダ","コアラ"],["ペンギン","アザラシ"],
-  ["海","プール"],["映画館","劇場"],["スーパー","コンビニ"],
-  ["電車","バス"],["飛行機","ヘリコプター"],["新幹線","特急"],
-  ["サッカー","ラグビー"],["野球","ソフトボール"],["テニス","バドミントン"],
-  ["スマホ","タブレット"],["テレビ","パソコン"],["お風呂","シャワー"],
-  ["桜","梅"],["温泉","銭湯"],["神社","お寺"]
-];
+var BUILTIN_PAIRS=[];
 
 /* ════════════════════════
    LOCAL STORAGE キー
@@ -629,20 +618,17 @@ function loadOneJSON(filename){
 }
 
 function mergeLoadedJSON(){
-  /* localStorageに保存済みのペアがあればそちらベース（編集済み）
-     + 各JSONファイルから localStorageにないペアを追記 */
-  var lsPairs = lsGet(LS_PAIRS, null);
-
-  /* まず全JSONのペアをフラットに集める */
+  /* 全JSONのペアをフラットに集める */
   var allFromJSON = [];
   for(var i=0;i<JSON_FILES.length;i++){
     var fp = jsonLoaded[JSON_FILES[i]];
     if(fp) for(var j=0;j<fp.length;j++) allFromJSON.push(fp[j]);
   }
 
-  if(lsPairs !== null){
-    /* localStorageがある → 編集済みを優先しつつ
-       JSONにしかないペアを末尾に追加（重複チェック） */
+  /* localStorageに保存済みの編集内容がある場合：
+     編集済みペアを優先し、JSONにしかない新規ペアを末尾に追加 */
+  var lsPairs = lsGet(LS_PAIRS, null);
+  if(lsPairs !== null && lsPairs.length > 0){
     var base = lsPairs.slice();
     for(var k=0;k<allFromJSON.length;k++){
       var p = allFromJSON[k];
@@ -655,11 +641,9 @@ function mergeLoadedJSON(){
     S.wordPairs = base;
     lsSet(LS_PAIRS, base);
   } else {
-    /* 初回：JSONから全部読む */
-    if(allFromJSON.length > 0){
-      S.wordPairs = allFromJSON;
-      lsSet(LS_PAIRS, allFromJSON);
-    }
+    /* 初回またはlocalStorageが空：JSONから全部読む */
+    S.wordPairs = allFromJSON;
+    lsSet(LS_PAIRS, allFromJSON);
   }
   renderWordStats();
   renderWordList();
