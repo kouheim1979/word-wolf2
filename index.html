@@ -931,7 +931,8 @@ function openOverlay(idx){
   var role=S.roles[idx], word=role==='wolf'?S.wolfWord:S.citizenWord;
   document.getElementById('overlay-name').textContent=S.playerNames[idx];
   document.getElementById('overlay-word').textContent=word;
-  document.getElementById('overlay-word').style.color=role==='wolf'?'#e74c3c':'#2ecc71';
+  /* お題の色で役職が推測できないよう固定色にする */
+  document.getElementById('overlay-word').style.color='#f0f0f5';
   var roleEl=document.getElementById('overlay-role');
   if(S.hintEnabled){
     roleEl.textContent=role==='wolf'?'🐺 あなたはウルフかもしれない...':'😊 話し合いを楽しもう';
