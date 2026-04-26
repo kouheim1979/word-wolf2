@@ -13,12 +13,23 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap');
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+*,
+*::before,
+*::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html,
+body {
+width:100%;
+min-height:100%;
+margin:0;
+overflow-x:hidden;
+}
 
 body {
 background:#0e0e14; color:#f0f0f5;
 font-family:‘Zen Maru Gothic’,‘Hiragino Sans’,‘Yu Gothic’,sans-serif;
-min-height:100vh; overflow-x:hidden;
+min-height:100vh;
+min-height:100dvh;
 }
 body::before {
 content:’’; position:fixed; top:0;left:0;right:0;bottom:0;
@@ -32,16 +43,70 @@ pointer-events:none; z-index:0;
 }
 #app {
 position:relative; z-index:1; min-height:100vh;
+min-height:100dvh;
+width:100%;
 display:-webkit-box; display:-ms-flexbox; display:flex;
 -webkit-box-orient:vertical; -ms-flex-direction:column; flex-direction:column;
 -webkit-box-align:center; -ms-flex-align:center; align-items:center;
 padding:0 16px 48px;
 }
-.screen { display:none; width:100%; max-width:480px; }
+.screen { display:none; width:100%; max-width:480px; min-height:100vh; min-height:100dvh; }
 .screen.active {
 display:-webkit-box; display:-ms-flexbox; display:flex;
 -webkit-box-orient:vertical; -ms-flex-direction:column; flex-direction:column;
 -webkit-box-align:center; -ms-flex-align:center; align-items:center;
+}
+.screen-inner{
+width:100%;
+min-height:100vh;
+min-height:100dvh;
+display:-webkit-box;
+display:-ms-flexbox;
+display:flex;
+-webkit-box-orient:vertical;
+-ms-flex-direction:column;
+flex-direction:column;
+}
+.screen-content{
+-webkit-box-flex:1;
+-ms-flex:1;
+flex:1;
+display:-webkit-box;
+display:-ms-flexbox;
+display:flex;
+-webkit-box-orient:vertical;
+-ms-flex-direction:column;
+flex-direction:column;
+}
+.screen-footer{
+width:100%;
+display:-webkit-box;
+display:-ms-flexbox;
+display:flex;
+-webkit-box-pack:center;
+-ms-flex-pack:center;
+justify-content:center;
+padding:16px 16px calc(16px + env(safe-area-inset-bottom));
+}
+.primary-action-button{
+width:100%;
+max-width:340px;
+min-height:52px;
+padding:14px 24px;
+margin:0;
+font-size:18px;
+font-weight:700;
+border-radius:16px;
+box-shadow:0 8px 24px rgba(0,0,0,.3);
+display:-webkit-box;
+display:-ms-flexbox;
+display:flex;
+-webkit-box-align:center;
+-ms-flex-align:center;
+align-items:center;
+-webkit-box-pack:center;
+-ms-flex-pack:center;
+justify-content:center;
 }
 
 /* ══ TITLE ══ */
@@ -164,17 +229,19 @@ margin-bottom:14px;
 .complete-icon  { font-size:40px; margin-bottom:12px; display:block; }
 .complete-title { font-size:18px; font-weight:700; margin-bottom:6px; color:#f0f0f5; }
 .complete-sub   { font-size:14px; color:#888899; margin-bottom:16px; }
-.deal-next-btn {
-width:100%; max-width:280px; min-height:56px;
-position:fixed; left:50%; bottom:24px; -webkit-transform:translateX(-50%); transform:translateX(-50%);
-}
+.deal-shell{ width:100%; }
+.deal-content{ gap:16px; padding-top:40px; text-align:center; -webkit-box-align:stretch; -ms-flex-align:stretch; align-items:stretch; }
+.deal-content > *{ margin-bottom:0 !important; }
 
 /* ══ OVERLAY ══ */
-.overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:#0e0e14; z-index:200; display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-orient:vertical; -ms-flex-direction:column; flex-direction:column; -webkit-box-align:center; -ms-flex-align:center; align-items:center; -webkit-box-pack:center; -ms-flex-pack:center; justify-content:center; padding:24px; text-align:center; }
+.overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:#0e0e14; z-index:200; display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-orient:vertical; -ms-flex-direction:column; flex-direction:column; -webkit-box-align:center; -ms-flex-align:center; align-items:center; -webkit-box-pack:center; -ms-flex-pack:center; justify-content:center; padding:0 16px; text-align:center; min-height:100vh; min-height:100dvh; }
 .overlay.hidden { display:none; }
-.overlay > * { margin-bottom:20px; max-width:340px; }
-.overlay > *:last-child { margin-bottom:0; }
-.overlay-confirm-btn { width:100%; max-width:340px; }
+.overlay-inner{ width:100%; max-width:480px; min-height:100vh; min-height:100dvh; display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-orient:vertical; -ms-flex-direction:column; flex-direction:column; }
+.overlay-content{ -webkit-box-flex:1; -ms-flex:1; flex:1; display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-orient:vertical; -ms-flex-direction:column; flex-direction:column; -webkit-box-align:center; -ms-flex-align:center; align-items:center; -webkit-box-pack:center; -ms-flex-pack:center; justify-content:center; padding:24px 0; }
+.overlay-content > * { margin-bottom:20px; max-width:340px; width:100%; }
+.overlay-content > *:last-child { margin-bottom:0; }
+.overlay-top-actions{ display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-pack:justify; -ms-flex-pack:justify; justify-content:space-between; width:100%; max-width:340px; }
+.overlay-top-actions .btn-abort{ width:auto; }
 .overlay-player { font-size:13px; color:#888899; letter-spacing:.2em; }
 .overlay-name   { font-size:30px; font-weight:900; color:#f1c40f; }
 .overlay-word   { font-size:52px; font-weight:900; line-height:1.2; }
@@ -424,32 +491,45 @@ width:100%;
 <!-- DEAL -->
 
 <div id="deal-screen" class="screen">
-  <div class="screen-title-row">
-    <div class="screen-title">📋 お題配布</div>
-    <button class="btn-abort" onclick="openAbort()">⏹ 中止</button>
+  <div class="screen-inner deal-shell">
+    <main class="screen-content deal-content">
+      <div class="screen-title-row">
+        <div class="screen-title">📋 お題配布</div>
+        <button class="btn-abort" onclick="openAbort()">⏹ 中止</button>
+      </div>
+      <div class="deal-instruction">順番にタップして自分のお題を確認してください。<br>他の人に見せないように！</div>
+      <div class="progress-dots" id="progress-dots"></div>
+      <div class="wolf-count-badge" id="wolf-count-badge"></div>
+      <div class="reversal-info-badge" id="reversal-info-badge" style="display:none;">🌀 大逆転モード ON — 追放後にウルフの逆転チャンスあり！</div>
+      <button class="btn-secondary" onclick="redealGame()" style="font-size:14px;padding:10px;">🔀 このお題やったことある（再抽選）</button>
+      <div id="deal-cards"></div>
+    </main>
+    <footer class="screen-footer">
+      <button id="deal-primary-btn" class="btn-primary primary-action-button" onclick="onDealPrimaryAction()">👁 お題を見る</button>
+    </footer>
   </div>
-  <div class="deal-instruction">順番にタップして自分のお題を確認してください。<br>他の人に見せないように！</div>
-  <div class="progress-dots" id="progress-dots"></div>
-  <div class="wolf-count-badge" id="wolf-count-badge"></div>
-  <div class="reversal-info-badge" id="reversal-info-badge" style="display:none;">🌀 大逆転モード ON — 追放後にウルフの逆転チャンスあり！</div>
-  <button class="btn-secondary" onclick="redealGame()" style="font-size:14px;padding:10px;">🔀 このお題やったことある（再抽選）</button>
-  <div id="deal-cards"></div>
 </div>
 
 <!-- WORD OVERLAY -->
 
 <div id="word-overlay" class="overlay hidden">
-  <!-- オーバーレイ内の上部ボタン行 -->
-  <div style="display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;width:100%;max-width:340px;">
-    <button class="btn-abort" onclick="redealFromOverlay()">🔀 再抽選</button>
-    <button class="btn-abort" onclick="abortFromOverlay()">⏹ 中止</button>
+  <div class="overlay-inner">
+    <div class="overlay-content">
+      <!-- オーバーレイ内の上部ボタン行 -->
+      <div class="overlay-top-actions">
+        <button class="btn-abort" onclick="redealFromOverlay()">🔀 再抽選</button>
+        <button class="btn-abort" onclick="abortFromOverlay()">⏹ 中止</button>
+      </div>
+      <div class="overlay-player">あなたのお題</div>
+      <div class="overlay-name" id="overlay-name"></div>
+      <div class="overlay-word" id="overlay-word"></div>
+      <div class="overlay-role" id="overlay-role"></div>
+      <div class="overlay-note">📸 しっかり覚えたら閉じてください</div>
+    </div>
+    <footer class="screen-footer">
+      <button class="btn-primary primary-action-button overlay-confirm-btn" onclick="closeOverlay()">確認した ✓</button>
+    </footer>
   </div>
-  <div class="overlay-player">あなたのお題</div>
-  <div class="overlay-name" id="overlay-name"></div>
-  <div class="overlay-word" id="overlay-word"></div>
-  <div class="overlay-role" id="overlay-role"></div>
-  <div class="overlay-note">📸 しっかり覚えたら閉じてください</div>
-  <button class="btn-primary overlay-confirm-btn" onclick="closeOverlay()">確認した ✓</button>
 </div>
 
 <!-- DISCUSSION -->
@@ -907,6 +987,7 @@ function setupDealScreen(){
   document.getElementById('wolf-count-badge').innerHTML='🐺 ウルフは <span>'+wc+'人</span>います';
   document.getElementById('reversal-info-badge').style.display=S.reversalEnabled?'block':'none';
   renderDealCard();
+  updateDealPrimaryAction();
 }
 
 function renderDealCard(){
@@ -917,8 +998,8 @@ function renderDealCard(){
         '<span class="complete-icon">✅</span>'+
         '<div class="complete-title">全員確認完了！</div>'+
         '<div class="complete-sub">話し合いをはじめましょう</div>'+
-        '<button class="btn-primary deal-next-btn" onclick="startDiscussion()">💬 話し合い開始</button>'+
       '</div>';
+    updateDealPrimaryAction();
     return;
   }
   var name=S.playerNames[S.dealIdx];
@@ -928,9 +1009,23 @@ function renderDealCard(){
       '<div class="player-card-hint">タップしてお題を確認</div>'+
       '<span class="tap-icon">👆</span>'+
     '</div>';
+  updateDealPrimaryAction();
 }
 
 function onDealTap(){ openOverlay(S.dealIdx); }
+function onDealPrimaryAction(){
+  if(S.dealIdx>=S.playerCount){ startDiscussion(); return; }
+  onDealTap();
+}
+function updateDealPrimaryAction(){
+  var btn=document.getElementById('deal-primary-btn');
+  if(!btn) return;
+  if(S.dealIdx>=S.playerCount){
+    btn.textContent='💬 話し合い開始';
+  } else {
+    btn.textContent='👁 お題を見る';
+  }
+}
 
 function openOverlay(idx){
   var role=S.roles[idx], word=role==='wolf'?S.wolfWord:S.citizenWord;
@@ -955,6 +1050,7 @@ function closeOverlay(){
   S.dealIdx++;
   if(S.dealIdx<S.playerCount){ var nd=document.getElementById('dot-'+S.dealIdx); if(nd) nd.classList.add('current'); }
   renderDealCard();
+  updateDealPrimaryAction();
 }
 
 /* ════════════════════════
