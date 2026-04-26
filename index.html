@@ -13,7 +13,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap');
 
-- { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
 body {
 background:#0e0e14; color:#f0f0f5;
@@ -174,6 +174,7 @@ position:fixed; left:50%; bottom:24px; -webkit-transform:translateX(-50%); trans
 .overlay.hidden { display:none; }
 .overlay > * { margin-bottom:20px; max-width:340px; }
 .overlay > *:last-child { margin-bottom:0; }
+.overlay-confirm-btn { width:100%; max-width:340px; }
 .overlay-player { font-size:13px; color:#888899; letter-spacing:.2em; }
 .overlay-name   { font-size:30px; font-weight:900; color:#f1c40f; }
 .overlay-word   { font-size:52px; font-weight:900; line-height:1.2; }
@@ -448,7 +449,7 @@ width:100%;
   <div class="overlay-word" id="overlay-word"></div>
   <div class="overlay-role" id="overlay-role"></div>
   <div class="overlay-note">📸 しっかり覚えたら閉じてください</div>
-  <button class="btn-primary deal-next-btn" onclick="closeOverlay()">確認した ✓</button>
+  <button class="btn-primary overlay-confirm-btn" onclick="closeOverlay()">確認した ✓</button>
 </div>
 
 <!-- DISCUSSION -->
