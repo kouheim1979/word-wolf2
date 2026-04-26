@@ -104,6 +104,23 @@ margin-bottom:14px;
 /* buttons */
 .btn-primary { background:linear-gradient(135deg,#e74c3c,#c0392b); color:#fff; border:none; border-radius:16px; padding:16px; font-size:18px; font-weight:700; font-family:inherit; cursor:pointer; width:100%; -webkit-transition:-webkit-transform .15s; transition:transform .15s; letter-spacing:.05em; display:block; text-align:center; -webkit-appearance:none; appearance:none; }
 .btn-primary:active { -webkit-transform:scale(.97); transform:scale(.97); }
+/* お題配布導線の主ボタンを同サイズ・中央寄せに統一 */
+#word-overlay .btn-primary,
+.complete-card .btn-primary {
+max-width:280px;
+min-height:56px;
+margin:0 auto;
+padding:16px 20px;
+display:-webkit-box;
+display:-ms-flexbox;
+display:flex;
+-webkit-box-align:center;
+-ms-flex-align:center;
+align-items:center;
+-webkit-box-pack:center;
+-ms-flex-pack:center;
+justify-content:center;
+}
 .btn-secondary { background:transparent; color:#888899; border:1px solid #2a2a3e; border-radius:16px; padding:14px; font-size:16px; font-family:inherit; cursor:pointer; width:100%; -webkit-transition:background .2s; transition:background .2s; display:block; text-align:center; -webkit-appearance:none; appearance:none; }
 .btn-secondary:active { background:#1e1e2e; }
 .btn-green { background:linear-gradient(135deg,#27ae60,#1e8449); color:#fff; border:none; border-radius:16px; padding:16px; font-size:17px; font-weight:700; font-family:inherit; cursor:pointer; -webkit-transition:-webkit-transform .15s; transition:transform .15s; display:block; text-align:center; -webkit-appearance:none; appearance:none; width:100%; }
@@ -164,7 +181,6 @@ margin-bottom:14px;
 .complete-icon  { font-size:40px; margin-bottom:12px; display:block; }
 .complete-title { font-size:18px; font-weight:700; margin-bottom:6px; color:#f0f0f5; }
 .complete-sub   { font-size:14px; color:#888899; margin-bottom:16px; }
-
 /* ══ OVERLAY ══ */
 .overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:#0e0e14; z-index:200; display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-orient:vertical; -ms-flex-direction:column; flex-direction:column; -webkit-box-align:center; -ms-flex-align:center; align-items:center; -webkit-box-pack:center; -ms-flex-pack:center; justify-content:center; padding:24px; text-align:center; }
 .overlay.hidden { display:none; }
@@ -444,7 +460,7 @@ width:100%;
   <div class="overlay-word" id="overlay-word"></div>
   <div class="overlay-role" id="overlay-role"></div>
   <div class="overlay-note">📸 しっかり覚えたら閉じてください</div>
-  <button class="btn-primary" style="max-width:280px;" onclick="closeOverlay()">確認した ✓</button>
+  <button class="btn-primary" onclick="closeOverlay()">確認した ✓</button>
 </div>
 
 <!-- DISCUSSION -->
