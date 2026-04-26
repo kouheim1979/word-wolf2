@@ -164,6 +164,7 @@ margin-bottom:14px;
 .complete-icon  { font-size:40px; margin-bottom:12px; display:block; }
 .complete-title { font-size:18px; font-weight:700; margin-bottom:6px; color:#f0f0f5; }
 .complete-sub   { font-size:14px; color:#888899; margin-bottom:16px; }
+.deal-next-btn { width:100%; max-width:280px; margin:0 auto; }
 
 /* ══ OVERLAY ══ */
 .overlay { position:fixed; top:0;left:0;right:0;bottom:0; background:#0e0e14; z-index:200; display:-webkit-box; display:-ms-flexbox; display:flex; -webkit-box-orient:vertical; -ms-flex-direction:column; flex-direction:column; -webkit-box-align:center; -ms-flex-align:center; align-items:center; -webkit-box-pack:center; -ms-flex-pack:center; justify-content:center; padding:24px; text-align:center; }
@@ -444,7 +445,7 @@ width:100%;
   <div class="overlay-word" id="overlay-word"></div>
   <div class="overlay-role" id="overlay-role"></div>
   <div class="overlay-note">📸 しっかり覚えたら閉じてください</div>
-  <button class="btn-primary" style="max-width:280px;" onclick="closeOverlay()">確認した ✓</button>
+  <button class="btn-primary deal-next-btn" onclick="closeOverlay()">確認した ✓</button>
 </div>
 
 <!-- DISCUSSION -->
@@ -912,7 +913,7 @@ function renderDealCard(){
         '<span class="complete-icon">✅</span>'+
         '<div class="complete-title">全員確認完了！</div>'+
         '<div class="complete-sub">話し合いをはじめましょう</div>'+
-        '<button class="btn-primary" onclick="startDiscussion()">💬 話し合い開始</button>'+
+        '<button class="btn-primary deal-next-btn" onclick="startDiscussion()">💬 話し合い開始</button>'+
       '</div>';
     return;
   }
