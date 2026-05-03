@@ -415,6 +415,7 @@ button:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--c-line);}
       <div class="overlay-player">あなたのお題</div>
       <div class="overlay-name" id="overlay-name"></div>
       <div class="overlay-word topic-word" id="overlay-word"></div>
+      <div class="overlay-role" id="overlay-role" style="display:none;"></div>
       <div class="overlay-note">📸 しっかり覚えたら閉じてください</div>
     </main>
     <footer class="screen-footer">
@@ -992,8 +993,18 @@ function onDealPrimaryAction(){
 
 function openOverlay(idx){
   var word=S.roles[idx]==='wolf'?S.wolfWord:S.citizenWord;
+  var roleHintEl=document.getElementById('overlay-role');
   document.getElementById('overlay-name').textContent=S.playerNames[idx];
   document.getElementById('overlay-word').textContent=word;
+  if(roleHintEl){
+    if(S.hintEnabled){
+      roleHintEl.textContent=S.roles[idx]==='wolf'?'💡 役割ヒント: あなたはウルフです':'💡 役割ヒント: あなたは市民です';
+      roleHintEl.style.display='block';
+    }else{
+      roleHintEl.textContent='';
+      roleHintEl.style.display='none';
+    }
+  }
   document.getElementById('word-overlay').classList.remove('hidden');
 }
 
